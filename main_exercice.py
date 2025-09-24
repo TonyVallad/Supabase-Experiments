@@ -2,6 +2,7 @@
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from config import ANSI
 
 # Load environment variables
 load_dotenv()
@@ -21,10 +22,10 @@ def create_ai_project(name: str, description: str, model_type: str, hyperparamet
             "model_type": model_type,
             "hyperparameters": hyperparameters
         }).execute()
-        print(f"✅ AI Project '{name}' created successfully!")
+        print(f"✅ AI Project '{ANSI['G']}{name}{ANSI['W']}' created successfully!")
         return result.data
     except Exception as e:
-        print(f"❌ Error creating project: {e}")
+        print(f"{ANSI['R']}❌ Error creating project: {e}{ANSI['W']}")
         return None
 
 def list_projects():
@@ -35,7 +36,7 @@ def list_projects():
         result = supabase.table("ai_projects").select("id, name, model_type, hyperparameters, created_at").execute()
         projects = result.data
         
-        print("\n📊 AI Projects List:")
+        print(f"\n📊 {ANSI['G']}AI Projects List:{ANSI['W']}")
         print("=" * 50)
         
         if not projects:
@@ -43,15 +44,15 @@ def list_projects():
             return []
             
         for project in projects:
-            print(f"Name: {project['name']} | Type: {project['model_type']}")
+            print(f"{ANSI['B']}Name:{ANSI['W']} {project['name']} | {ANSI['B']}Type:{ANSI['W']} {project['model_type']}")
             
         print("-" * 50)
-        print(f"Total number of projects: {len(projects)}")
+        print(f"{ANSI['B']}Total number of projects:{ANSI['W']} {len(projects)}")
         
         return projects
         
     except Exception as e:
-        print(f"❌ Error retrieving projects: {e}")
+        print(f"{ANSI['R']}❌ Error retrieving projects: {e}{ANSI['W']}")
         return []
 
 def create_dataset(name: str, description: str, size_mb: int, format: str, ai_project_id: str, source_url: str = None):
@@ -67,10 +68,10 @@ def create_dataset(name: str, description: str, size_mb: int, format: str, ai_pr
             "source_url": source_url,
             "ai_project_id": ai_project_id
         }).execute()
-        print(f"✅ Dataset '{name}' created successfully!")
+        print(f"✅ Dataset '{ANSI['G']}{name}{ANSI['W']}' created successfully!")
         return result.data
     except Exception as e:
-        print(f"❌ Error creating dataset: {e}")
+        print(f"{ANSI['R']}❌ Error creating dataset: {e}{ANSI['W']}")
         return None
 
 def list_datasets_by_project(ai_project_id: str):
@@ -81,7 +82,7 @@ def list_datasets_by_project(ai_project_id: str):
         result = supabase.table("datasets").select("*").eq("ai_project_id", ai_project_id).execute()
         return result.data
     except Exception as e:
-        print(f"❌ Error retrieving datasets: {e}")
+        print(f"{ANSI['R']}❌ Error retrieving datasets: {e}{ANSI['W']}")
         return []
 
 def datasets_statistics():
@@ -101,7 +102,7 @@ def datasets_statistics():
             print("\n📊 No datasets found.")
             return
             
-        print("\n📊 Dataset Statistics:")
+        print(f"\n📊 {ANSI['G']}Dataset Statistics:{ANSI['W']}")
         print("=" * 60)
         
         total_size = 0
@@ -113,22 +114,22 @@ def datasets_statistics():
             datasets_by_format[format_ds] = datasets_by_format.get(format_ds, 0) + 1
             
             project_name = dataset['ai_projects']['name'] if dataset['ai_projects'] else "Deleted project"
-            print(f"• {dataset['name']} ({dataset['size_mb']} MB) - Format: {dataset['format']}")
-            print(f"  ↳ Project: {project_name}")
+            print(f"• {dataset['name']} ({dataset['size_mb']} MB) - {ANSI['B']}Format:{ANSI['W']} {dataset['format']}")
+            print(f"  ↳ {ANSI['B']}Project:{ANSI['W']} {project_name}")
             
         print("-" * 60)
-        print(f"📈 Total dataset size: {total_size} MB ({total_size/1024:.1f} GB)")
-        print(f"📁 Total number of datasets: {len(datasets)}")
-        print(f"📄 Formats used: {', '.join(datasets_by_format.keys())}")
+        print(f"📈 {ANSI['B']}Total dataset size:{ANSI['W']} {total_size} MB ({total_size/1024:.1f} GB)")
+        print(f"📁 {ANSI['B']}Total number of datasets:{ANSI['W']} {len(datasets)}")
+        print(f"📄 {ANSI['B']}Formats used:{ANSI['W']} {', '.join(datasets_by_format.keys())}")
         
         return datasets
         
     except Exception as e:
-        print(f"❌ Error calculating statistics: {e}")
+        print(f"{ANSI['R']}❌ Error calculating statistics: {e}{ANSI['W']}")
         return []
 
 def main():
-    print("🚀 Starting Supabase + Python Application")
+    print(f"🚀 {ANSI['G']}Starting Supabase-Experiments{ANSI['W']}")
     print("=" * 60)
     
     # Create some example AI projects
@@ -154,7 +155,7 @@ def main():
     ]
     
     # Create projects
-    print("\n📝 Creating AI projects...")
+    print(f"\n📝 {ANSI['Y']}Creating AI projects...{ANSI['W']}")
     for project in example_projects:
         create_ai_project(
             name=project["name"],
@@ -169,7 +170,7 @@ def main():
     
     # BONUS: Datasets demonstration
     if projects and len(projects) > 0:
-        print("\n🎁 BONUS: Dataset Management")
+        print(f"\n🎁 {ANSI['G']}BONUS: Dataset Management{ANSI['W']}")
         print("=" * 60)
         
         # Create some example datasets for the created projects
@@ -198,7 +199,7 @@ def main():
         ]
         
         # Create datasets by linking them to projects
-        print("\n📋 Creating datasets...")
+        print(f"\n📋 {ANSI['Y']}Creating datasets...{ANSI['W']}")
         for i, dataset in enumerate(example_datasets):
             if i < len(projects):
                 project_id = projects[i]['id'] if 'id' in projects[i] else None
@@ -215,7 +216,7 @@ def main():
         # Display dataset statistics
         datasets_statistics()
     else:
-        print("\n⚠️  No projects found, unable to create datasets.")
+        print(f"\n⚠️  {ANSI['R']}No projects found, unable to create datasets.{ANSI['W']}")
 
 if __name__ == "__main__":
     main()

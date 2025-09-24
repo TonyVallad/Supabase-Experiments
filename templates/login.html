@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Supabase-Experiments{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card login-card shadow-lg">
+                    <div class="card-header text-center">
+                        <h4><i class="fas fa-rocket me-2"></i>Welcome to Supabase-Experiments</h4>
+                        <p class="mb-0">Manage your AI Projects & Datasets</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                            <h5>Sign in to get started</h5>
+                            <p class="text-muted">Access your AI projects and datasets securely using GitHub authentication.</p>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button id="githubLoginBtn" class="btn github-btn btn-lg">
+                                <i class="fab fa-github me-2"></i>
+                                Continue with GitHub
+                            </button>
+                        </div>
+                        
+                        <!-- Loading indicator -->
+                        <div id="loadingIndicator" class="text-center mt-3" style="display: none;">
+                            <div class="spinner-custom mx-auto"></div>
+                            <p class="text-muted mt-2">Authenticating...</p>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Secure authentication powered by Supabase
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Features preview for non-logged in users -->
+                <div class="card mt-4 fade-in">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="fas fa-star me-2 text-warning"></i>Features</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-brain text-primary me-2"></i>
+                                    <small>AI Projects Management</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-database text-success me-2"></i>
+                                    <small>Dataset Organization</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-chart-bar text-info me-2"></i>
+                                    <small>Analytics Dashboard</small>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-link text-warning me-2"></i>
+                                    <small>Project-Dataset Linking</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome section for users who aren't logged in -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h2><i class="fas fa-rocket me-2 text-primary"></i>Supabase-Experiments Platform</h2>
+                <p class="lead text-muted">A comprehensive solution for managing AI projects and datasets</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">AI Projects</h5>
+                    <p class="card-text">Create and manage your machine learning projects with detailed configurations and hyperparameters.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-database fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Dataset Management</h5>
+                    <p class="card-text">Organize your datasets with metadata, size tracking, and seamless project linking.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Analytics</h5>
+                    <p class="card-text">Track your progress with comprehensive statistics and visualizations of your data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Supabase JavaScript Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// Initialize Supabase client
+let supabaseClient;
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', async function() {
+    // Get Supabase config from backend
+    try {
+        const configResponse = await fetch('/api/config');
+        const config = await configResponse.json();
+        
+        if (config.success) {
+            // Initialize Supabase client
+            const { createClient } = supabase;
+            supabaseClient = createClient(config.supabase_url, config.supabase_key);
+            
+            // Check if user is already logged in
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                // User is already logged in, send to backend
+                await handleAuthSuccess(session);
+                return;
+            }
+            
+            // Listen for auth changes
+            supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                console.log('Auth state change:', event, session);
+                if (event === 'SIGNED_IN' && session) {
+                    await handleAuthSuccess(session);
+                } else if (event === 'SIGNED_OUT') {
+                    window.location.href = '/';
+                }
+            });
+        } else {
+            console.error('Failed to get Supabase config:', config);
+            SupabaseApp.showAlert('Failed to initialize authentication.', 'error');
+        }
+    } catch (error) {
+        console.error('Failed to initialize Supabase client:', error);
+        SupabaseApp.showAlert('Failed to initialize authentication. Please refresh the page.', 'error');
+    }
+
+    // Add fade-in animation to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('fade-in');
+        }, index * 100);
+    });
+
+    // GitHub login button handler
+    document.getElementById('githubLoginBtn').addEventListener('click', handleGitHubLogin);
+});
+
+async function handleGitHubLogin() {
+    if (!supabaseClient) {
+        SupabaseApp.showAlert('Authentication not initialized. Please refresh the page.', 'error');
+        return;
+    }
+
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const loginBtn = document.getElementById('githubLoginBtn');
+    
+    try {
+        // Show loading
+        loginBtn.style.display = 'none';
+        loadingIndicator.style.display = 'block';
+        
+        console.log('Initiating GitHub OAuth...');
+        
+        // Use Supabase's built-in GitHub OAuth
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'github',
+            options: {
+                redirectTo: window.location.origin + '/auth/callback'
+            }
+        });
+
+        if (error) {
+            console.error('OAuth error:', error);
+            throw error;
+        }
+
+        console.log('OAuth initiated successfully:', data);
+        // The page will redirect automatically
+        
+    } catch (error) {
+        console.error('GitHub login error:', error);
+        let errorMessage = 'Failed to initiate GitHub login.';
+        
+        if (error.message) {
+            errorMessage += ' Error: ' + error.message;
+        }
+        
+        // Check if it's a configuration issue
+        if (error.message && error.message.includes('not enabled')) {
+            errorMessage = 'GitHub authentication is not enabled in Supabase. Please enable it in your Supabase dashboard under Authentication → Providers.';
+        }
+        
+        SupabaseApp.showAlert(errorMessage, 'error');
+        
+        // Reset UI
+        loginBtn.style.display = 'block';
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+async function handleAuthSuccess(session) {
+    try {
+        console.log('Handling auth success:', session);
+        
+        // Send session data to Flask backend
+        const response = await fetch('/auth/signin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                access_token: session.access_token,
+                refresh_token: session.refresh_token,
+                user: session.user
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            SupabaseApp.showAlert('Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = result.redirect || '/';
+            }, 1000);
+        } else {
+            throw new Error(result.error || 'Authentication failed');
+        }
+        
+    } catch (error) {
+        console.error('Auth success handler error:', error);
+        SupabaseApp.showAlert('Authentication error: ' + error.message, 'error');
+    }
+}
+</script>
+{% endblock %}

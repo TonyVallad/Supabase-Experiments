@@ -1,0 +1,834 @@
+/* Custom CSS for Supabase-Experiments */
+/* Based on the ANSI color scheme from config.py */
+
+:root {
+    /* Modern Dark Theme Color Palette */
+    --color-primary: #6366f1;     /* Indigo - Primary actions */
+    --color-secondary: #8b5cf6;   /* Purple - Secondary elements */
+    --color-success: #10b981;     /* Emerald - Success states */
+    --color-danger: #ef4444;      /* Red - Errors/Danger */
+    --color-warning: #f59e0b;     /* Amber - Warnings */
+    --color-info: #06b6d4;       /* Cyan - Info */
+    
+    /* Background colors */
+    --bg-primary: #0f172a;       /* Dark blue-gray background */
+    --bg-secondary: #1e293b;     /* Lighter blue-gray cards */
+    --bg-tertiary: #334155;      /* Even lighter for hover states */
+    
+    /* Text colors */
+    --text-primary: #f8fafc;     /* Almost white text */
+    --text-secondary: #cbd5e1;   /* Gray text */
+    --text-muted: #94a3b8;       /* Muted gray text */
+    
+    /* Accent colors */
+    --accent-pink: #ec4899;      /* Pink accent */
+    --accent-teal: #14b8a6;      /* Teal accent */
+    --accent-orange: #f97316;    /* Orange accent */
+    
+    /* Bootstrap overrides */
+    --bs-primary: #6366f1;
+    --bs-primary-rgb: 99, 102, 241;
+    --bs-secondary: #8b5cf6;
+    --bs-secondary-rgb: 139, 92, 246;
+    --bs-success: #10b981;
+    --bs-success-rgb: 16, 185, 129;
+    --bs-danger: #ef4444;
+    --bs-danger-rgb: 239, 68, 68;
+    --bs-warning: #f59e0b;
+    --bs-warning-rgb: 245, 158, 11;
+    --bs-info: #06b6d4;
+    --bs-info-rgb: 6, 182, 212;
+    
+    /* Dark theme overrides */
+    --bs-body-bg: #0f172a;
+    --bs-body-color: #f8fafc;
+    --bs-dark: #1e293b;
+    --bs-light: #334155;
+}
+
+/* Body and general styling - sticky footer layout */
+body {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, #1e293b 100%);
+    color: var(--text-primary);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure body doesn't interfere with modals */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+/* Main content container - flexible growth */
+main.container-fluid {
+    margin-bottom: 3rem; /* Add space before footer */
+    position: relative;
+    z-index: 1;
+    flex: 1; /* Take up remaining space */
+}
+
+/* Navigation */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary) !important;
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.navbar-dark {
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    z-index: 1000; /* Lower than dropdown */
+    position: relative;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--text-secondary) !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link.active {
+    color: var(--color-primary) !important;
+    text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+/* Cards and containers */
+.card {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    overflow: hidden; /* Ensure rounded corners are preserved */
+    position: relative;
+    z-index: 2; /* Ensure cards stay above background */
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 48px rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    color: white;
+    border-radius: 16px 16px 0 0 !important;
+    border: none;
+    font-weight: 600;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
+}
+
+.card-body {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Buttons with modern styling */
+.btn {
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--color-success), var(--accent-teal));
+    border: none;
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #059669, #0d9488);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--color-danger), #dc2626);
+    border: none;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--color-warning), var(--accent-orange));
+    border: none;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #d97706, #ea580c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+    color: white;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5856eb, #7c3aed);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    color: white;
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+}
+
+/* Statistics cards with glassmorphism */
+.stat-card {
+    background: rgba(99, 102, 241, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.stat-card:hover::before {
+    transform: translateX(100%);
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.stat-card .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text-primary);
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+}
+
+.stat-card .stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Color-coded stat cards */
+.stat-card.green {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.stat-card.green:hover {
+    box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.stat-card.green .stat-number {
+    color: var(--color-success);
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.stat-card.blue {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: rgba(6, 182, 212, 0.3);
+}
+
+.stat-card.blue:hover {
+    box-shadow: 0 20px 60px rgba(6, 182, 212, 0.3);
+    border-color: rgba(6, 182, 212, 0.5);
+}
+
+.stat-card.blue .stat-number {
+    color: var(--color-info);
+    text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+}
+
+.stat-card.yellow {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.stat-card.yellow:hover {
+    box-shadow: 0 20px 60px rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
+.stat-card.yellow .stat-number {
+    color: var(--color-warning);
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+}
+
+.stat-card.red {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.stat-card.red:hover {
+    box-shadow: 0 20px 60px rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.stat-card.red .stat-number {
+    color: var(--color-danger);
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+/* Tables with dark theme */
+.table {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    color: var(--text-primary);
+}
+
+.table thead th {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    color: white;
+    border: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    padding: 1.5rem 1rem;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.1);
+    transform: scale(1.01);
+}
+
+.table tbody td {
+    padding: 1.5rem 1rem;
+    vertical-align: middle;
+    border: none;
+    color: var(--text-primary);
+}
+
+/* Forms with dark theme */
+.form-control {
+    background: var(--bg-tertiary);
+    border: 2px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: var(--bg-secondary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    color: var(--text-primary);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.form-select {
+    background: var(--bg-tertiary);
+    border: 2px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    color: var(--text-primary);
+}
+
+.form-select:focus {
+    background: var(--bg-secondary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    color: var(--text-primary);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+/* Badges with modern styling */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, var(--color-success), var(--accent-teal)) !important;
+    color: white;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, var(--color-info), var(--color-primary)) !important;
+    color: white;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, var(--color-warning), var(--accent-orange)) !important;
+    color: white;
+}
+
+.badge.bg-primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)) !important;
+    color: white;
+}
+
+.badge.bg-secondary {
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--text-muted)) !important;
+    color: white;
+}
+
+/* Alert customization with dark theme */
+.alert {
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: none;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.alert-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--color-warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.alert-info {
+    background: rgba(6, 182, 212, 0.1);
+    color: var(--color-info);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+/* Login page styling */
+.login-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.login-card {
+    max-width: 450px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.github-btn {
+    background: linear-gradient(135deg, #24292e, #6366f1);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(36, 41, 46, 0.3);
+}
+
+.github-btn:hover {
+    background: linear-gradient(135deg, #1b1f23, #5856eb);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+}
+
+/* Dashboard header - ensure it stays below modals */
+.dashboard-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary), var(--accent-pink));
+    color: white;
+    border-radius: 20px;
+    padding: 3rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+    z-index: 1 !important; /* Very low z-index to stay below modals */
+}
+
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.dashboard-header h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-header p {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    margin-bottom: 0;
+    font-weight: 400;
+}
+
+/* Modal fixes with extreme z-index values */
+.modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important; /* Extremely high z-index */
+    outline: 0;
+}
+
+.modal.fade {
+    z-index: 999999 !important;
+    display: none !important;
+}
+
+.modal.show {
+    z-index: 999999 !important;
+    display: block !important;
+}
+
+.modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 999998 !important; /* Just below modal */
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.modal-backdrop.fade {
+    opacity: 0 !important;
+    z-index: 999998 !important;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5 !important;
+    z-index: 999998 !important;
+}
+
+.modal-dialog {
+    z-index: 1000000 !important; /* Highest for dialog */
+    position: relative !important;
+    width: auto !important;
+    margin: 1.75rem auto !important;
+    max-width: 90vw !important;
+    max-height: calc(100vh - 3.5rem) !important;
+    pointer-events: none;
+}
+
+.modal.show .modal-dialog {
+    transform: none !important;
+    z-index: 1000000 !important;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    z-index: 1000001 !important; /* Absolute highest */
+    position: relative !important;
+    pointer-events: auto;
+    background-clip: padding-box;
+    outline: 0;
+}
+
+/* Force all page elements to stay below modals */
+.navbar,
+.dashboard-header,
+.card,
+.container,
+.container-fluid,
+footer,
+main {
+    position: relative;
+}
+
+.navbar {
+    z-index: 1000 !important;
+}
+
+.dashboard-header {
+    z-index: 1 !important;
+}
+
+.card {
+    z-index: 2 !important;
+}
+
+footer {
+    z-index: 1 !important;
+}
+
+/* Specific targeting for all modals with extreme z-index */
+#createDatasetModal,
+#editDatasetModal,
+#deleteDatasetModal,
+#createProjectModal,
+#editProjectModal,
+#deleteProjectModal {
+    z-index: 999999 !important;
+}
+
+#createDatasetModal .modal-dialog,
+#editDatasetModal .modal-dialog,
+#deleteDatasetModal .modal-dialog,
+#createProjectModal .modal-dialog,
+#editProjectModal .modal-dialog,
+#deleteProjectModal .modal-dialog {
+    z-index: 1000000 !important;
+}
+
+#createDatasetModal .modal-content,
+#editDatasetModal .modal-content,
+#deleteDatasetModal .modal-content,
+#createProjectModal .modal-content,
+#editProjectModal .modal-content,
+#deleteProjectModal .modal-content {
+    z-index: 1000001 !important;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    color: white;
+    border-bottom: none;
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem 2rem;
+}
+
+.modal-body {
+    padding: 2rem;
+    color: var(--text-primary);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(99, 102, 241, 0.1);
+    padding: 1.5rem 2rem;
+    background: var(--bg-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-card .stat-number {
+        font-size: 2.2rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2.2rem;
+    }
+    
+    .dashboard-header {
+        padding: 2rem;
+    }
+    
+    .card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Enhanced animation classes */
+.fade-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Loading spinner with cosmic theme */
+.spinner-custom {
+    border: 3px solid rgba(99, 102, 241, 0.2);
+    border-radius: 50%;
+    border-top: 3px solid var(--color-primary);
+    width: 50px;
+    height: 50px;
+    animation: cosmicSpin 1s linear infinite;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+@keyframes cosmicSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Footer styling - sticky footer that stays at bottom */
+footer {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+    margin-top: auto; /* Push footer to bottom */
+    position: relative;
+    z-index: 1 !important; /* Very low z-index to stay below everything */
+    flex-shrink: 0; /* Don't shrink footer */
+}
+
+/* Text colors for dark theme */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Dropdown styling with proper z-index layering */
+.dropdown-menu {
+    background: var(--bg-secondary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 10000 !important; /* Very high z-index */
+    position: absolute !important;
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--color-primary);
+}
+
+/* Ensure navbar dropdown has proper z-index */
+.navbar-nav .dropdown {
+    z-index: 10000 !important;
+    position: relative !important;
+}
+
+.navbar-nav .dropdown-menu {
+    z-index: 10001 !important;
+    position: absolute !important;
+}
+
+/* Additional specific targeting for user dropdown */
+.navbar .dropdown-menu {
+    z-index: 10001 !important;
+}
+
+/* Ensure dropdown shows above everything */
+.dropdown-menu.show {
+    z-index: 10001 !important;
+    position: absolute !important;
+}
+
+/* Bootstrap dropdown z-index override */
+.nav-item.dropdown .dropdown-menu {
+    z-index: 10001 !important;
+}
+
+/* Glowing effects for icons */
+.fas, .fab {
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-secondary);
+}

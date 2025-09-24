@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block title %}Datasets - Supabase-Experiments{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header fade-in">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-database me-3"></i>Datasets</h1>
+                <p>Manage your machine learning datasets and link them to AI projects.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#createDatasetModal">
+                    <i class="fas fa-plus me-2"></i>New Dataset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Datasets List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card fade-in">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Your Datasets</h5>
+                    <small class="text-muted">{{ datasets|length }} dataset(s) total</small>
+                </div>
+                <div class="card-body p-0">
+                    {% if datasets %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Dataset Name</th>
+                                        <th>Project</th>
+                                        <th>Size</th>
+                                        <th>Format</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for dataset in datasets %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="dataset-icon me-3">
+                                                    {% if dataset.format == 'CSV' %}
+                                                        <i class="fas fa-file-csv text-success"></i>
+                                                    {% elif dataset.format == 'JSON' %}
+                                                        <i class="fas fa-file-code text-warning"></i>
+                                                    {% elif dataset.format in ['JPG', 'PNG', 'IMAGE'] %}
+                                                        <i class="fas fa-file-image text-info"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-file-alt text-secondary"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    <strong>{{ dataset.name }}</strong>
+                                                    <br><small class="text-muted">ID: {{ dataset.id[:8] }}...</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if dataset.ai_projects %}
+                                                <div>
+                                                    <strong>{{ dataset.ai_projects.name }}</strong>
+                                                    <br><span class="badge bg-info">{{ dataset.ai_projects.model_type }}</span>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">No project</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">{{ dataset.size_mb }} MB</span>
+                                            {% if dataset.size_mb >= 1024 %}
+                                                <br><small class="text-muted">({{ (dataset.size_mb / 1024) | round(1) }} GB)</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ dataset.format }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ dataset.created_at[:10] }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                        title="Edit Dataset" onclick="editDataset('{{ dataset.id }}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        title="Delete Dataset" onclick="deleteDataset('{{ dataset.id }}', '{{ dataset.name }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No datasets yet</h5>
+                            <p class="text-muted mb-4">Create your first dataset to get started!</p>
+                            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createDatasetModal">
+                                <i class="fas fa-plus me-2"></i>Create Your First Dataset
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Dataset Modal -->
+<div class="modal fade" id="createDatasetModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>Create New Dataset
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createDatasetForm">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="datasetName" class="form-label">Dataset Name</label>
+                            <input type="text" class="form-control" id="datasetName" name="name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="datasetProject" class="form-label">Linked Project</label>
+                            <select class="form-select" id="datasetProject" name="ai_project_id" required>
+                                <option value="">Select project...</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="datasetDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="datasetDescription" name="description" rows="3" 
+                                    placeholder="Describe your dataset, its content, and purpose..."></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="datasetSize" class="form-label">Size (MB)</label>
+                            <input type="number" class="form-control" id="datasetSize" name="size_mb" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="datasetFormat" class="form-label">Format</label>
+                            <select class="form-select" id="datasetFormat" name="format" required>
+                                <option value="">Select format...</option>
+                                <option value="CSV">CSV</option>
+                                <option value="JSON">JSON</option>
+                                <option value="PARQUET">Parquet</option>
+                                <option value="XML">XML</option>
+                                <option value="JPG">JPG/JPEG</option>
+                                <option value="PNG">PNG</option>
+                                <option value="TXT">TXT</option>
+                                <option value="HDF5">HDF5</option>
+                                <option value="SQLITE">SQLite</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="datasetSource" class="form-label">Source URL</label>
+                            <input type="url" class="form-control" id="datasetSource" name="source_url" 
+                                   placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>Create Dataset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Dataset Modal -->
+<div class="modal fade" id="editDatasetModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Dataset
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editDatasetForm">
+                <input type="hidden" id="editDatasetId" name="dataset_id">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="editDatasetName" class="form-label">Dataset Name</label>
+                            <input type="text" class="form-control" id="editDatasetName" name="name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editDatasetProject" class="form-label">Linked Project</label>
+                            <select class="form-select" id="editDatasetProject" name="ai_project_id" required>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="editDatasetDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDatasetDescription" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editDatasetSize" class="form-label">Size (MB)</label>
+                            <input type="number" class="form-control" id="editDatasetSize" name="size_mb" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editDatasetFormat" class="form-label">Format</label>
+                            <select class="form-select" id="editDatasetFormat" name="format" required>
+                                <option value="CSV">CSV</option>
+                                <option value="JSON">JSON</option>
+                                <option value="PARQUET">Parquet</option>
+                                <option value="XML">XML</option>
+                                <option value="JPG">JPG/JPEG</option>
+                                <option value="PNG">PNG</option>
+                                <option value="TXT">TXT</option>
+                                <option value="HDF5">HDF5</option>
+                                <option value="SQLITE">SQLite</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editDatasetSource" class="form-label">Source URL</label>
+                            <input type="url" class="form-control" id="editDatasetSource" name="source_url">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-2"></i>Update Dataset
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteDatasetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the dataset <strong id="deleteDatasetName"></strong>?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteDatasetBtn">
+                    <i class="fas fa-trash me-2"></i>Delete Dataset
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let currentDatasetId = null;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Add fade-in animations
+    const elements = document.querySelectorAll('.fade-in');
+    elements.forEach((element, index) => {
+        setTimeout(() => {
+            element.style.animation = 'fadeIn 0.6s ease-in forwards';
+        }, index * 100);
+    });
+    
+    // Setup form handlers
+    setupFormHandlers();
+});
+
+function setupFormHandlers() {
+    // Create dataset form
+    document.getElementById('createDatasetForm').addEventListener('submit', handleCreateDataset);
+    
+    // Edit dataset form
+    document.getElementById('editDatasetForm').addEventListener('submit', handleEditDataset);
+    
+    // Delete confirmation
+    document.getElementById('confirmDeleteDatasetBtn').addEventListener('click', handleDeleteDataset);
+}
+
+function handleCreateDataset(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const datasetData = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        size_mb: parseInt(formData.get('size_mb')),
+        format: formData.get('format'),
+        source_url: formData.get('source_url'),
+        ai_project_id: formData.get('ai_project_id')
+    };
+    
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+    submitBtn.disabled = true;
+    
+    fetch('/api/datasets', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(datasetData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Dataset created successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('createDatasetModal')).hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showAlert('Error creating dataset: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('Error creating dataset: ' + error.message, 'error');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+function editDataset(datasetId) {
+    currentDatasetId = datasetId;
+    
+    // Fetch dataset details
+    fetch(`/api/datasets/${datasetId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const dataset = data.data;
+            
+            // Populate edit form
+            document.getElementById('editDatasetId').value = dataset.id;
+            document.getElementById('editDatasetName').value = dataset.name;
+            document.getElementById('editDatasetDescription').value = dataset.description || '';
+            document.getElementById('editDatasetSize').value = dataset.size_mb;
+            document.getElementById('editDatasetFormat').value = dataset.format;
+            document.getElementById('editDatasetSource').value = dataset.source_url || '';
+            document.getElementById('editDatasetProject').value = dataset.ai_projects ? dataset.ai_projects.id : '';
+            
+            // Show modal
+            new bootstrap.Modal(document.getElementById('editDatasetModal')).show();
+        } else {
+            showAlert('Error loading dataset details: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('Error loading dataset: ' + error.message, 'error');
+    });
+}
+
+function handleEditDataset(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const datasetData = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        size_mb: parseInt(formData.get('size_mb')),
+        format: formData.get('format'),
+        source_url: formData.get('source_url'),
+        ai_project_id: formData.get('ai_project_id')
+    };
+    
+    fetch(`/api/datasets/${currentDatasetId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(datasetData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Dataset updated successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editDatasetModal')).hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showAlert('Error updating dataset: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('Error updating dataset: ' + error.message, 'error');
+    });
+}
+
+function deleteDataset(datasetId, datasetName) {
+    currentDatasetId = datasetId;
+    document.getElementById('deleteDatasetName').textContent = datasetName;
+    new bootstrap.Modal(document.getElementById('deleteDatasetModal')).show();
+}
+
+function handleDeleteDataset() {
+    fetch(`/api/datasets/${currentDatasetId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Dataset deleted successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('deleteDatasetModal')).hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showAlert('Error deleting dataset: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('Error deleting dataset: ' + error.message, 'error');
+    });
+}
+
+function showAlert(message, type) {
+    const alertContainer = document.createElement('div');
+    alertContainer.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    alertContainer.style.top = '20px';
+    alertContainer.style.right = '20px';
+    alertContainer.style.zIndex = '9999';
+    alertContainer.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertContainer);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alertContainer.parentNode) {
+            alertContainer.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

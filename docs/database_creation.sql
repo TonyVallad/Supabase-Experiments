@@ -1,6 +1,15 @@
 -- SQL Script to create the datasets table (bonus part)
 -- Execute in the Supabase Table Editor
 
+CREATE TABLE ai_projects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  model_type VARCHAR(100), -- NLP, Computer Vision, etc.
+  hyperparameters JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 CREATE TABLE datasets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,

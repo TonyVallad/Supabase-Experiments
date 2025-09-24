@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Authenticating...{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <h4 class="card-title">Completing authentication...</h4>
+                    <p class="card-text text-muted">Please wait while we sign you in.</p>
+                    
+                    <!-- Error display -->
+                    <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                        <strong>Authentication Failed!</strong>
+                        <span id="errorMessage">An error occurred during authentication.</span>
+                        <hr>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-danger btn-sm">Try Again</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Supabase JavaScript Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        // Get Supabase config from backend
+        const configResponse = await fetch('/api/config');
+        const config = await configResponse.json();
+        
+        if (!config.success) {
+            throw new Error('Failed to get Supabase configuration');
+        }
+        
+        // Initialize Supabase client
+        const { createClient } = supabase;
+        const supabaseClient = createClient(config.supabase_url, config.supabase_key);
+        
+        console.log('Callback page - checking auth session...');
+        
+        // Get the session (should be available after OAuth callback)
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        
+        if (error) {
+            console.error('Session error:', error);
+            throw new Error('Session error: ' + error.message);
+        }
+        
+        if (session) {
+            console.log('Session found, processing authentication...');
+            
+            // Send session data to Flask backend
+            const response = await fetch('/auth/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    access_token: session.access_token,
+                    refresh_token: session.refresh_token,
+                    user: session.user
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('Authentication successful, redirecting...');
+                // Show success and redirect
+                window.location.href = result.redirect || '/';
+            } else {
+                throw new Error(result.error || 'Authentication failed on server');
+            }
+        } else {
+            console.log('No session found, checking URL for auth fragments...');
+            
+            // Check for auth fragments in URL (fallback)
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const accessToken = hashParams.get('access_token');
+            
+            if (accessToken) {
+                console.log('Found access token in URL fragment');
+                // Wait a bit for Supabase to process the session
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Try getting session again
+                const { data: { session: retrySession } } = await supabaseClient.auth.getSession();
+                if (retrySession) {
+                    console.log('Session found on retry, processing...');
+                    // Recursive call to handle the session
+                    location.reload();
+                    return;
+                }
+            }
+            
+            throw new Error('No valid session found after authentication');
+        }
+        
+    } catch (error) {
+        console.error('Callback error:', error);
+        
+        // Show error message
+        document.getElementById('errorMessage').textContent = error.message;
+        document.getElementById('errorAlert').classList.remove('d-none');
+        
+        // Hide loading spinner
+        document.querySelector('.spinner-border').style.display = 'none';
+        
+        // Auto redirect to login after delay
+        setTimeout(() => {
+            window.location.href = '{{ url_for("login") }}';
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}
