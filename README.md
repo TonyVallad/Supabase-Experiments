@@ -1,17 +1,7 @@
 # Supabase-Experiments
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![Flask](https://img.shields.io/badge/Flask-3.0+-red.svg)](https://flask.palle├── 📁 static/                      # Static assets
-│   ├── 📁 css/
-│   │   └── 📄 style.css           # Custom styling (cosmic theme)
-│   └── 📁 js/
-│       └── 📄 main.js             # JavaScript functionality
-├── 📁 scripts/                    # Utility scripts
-│   └── 📄 clear_database.py       # Database cleanup utility
-├── 📁 docs/                       # Documentation
-│   └── 📄 Exercice_pratique_Supabase+Python.md
-├── 📄 LICENSE                     # MIT License
-└── 📄 README.md                   # This filets.com)
+[![Flask](https://img.shields.io/badge/Flask-3.0+-red.svg)](https://flask.pallets.com)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-green.svg)](https://supabase.com)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3+-purple.svg)](https://getbootstrap.com)
 
